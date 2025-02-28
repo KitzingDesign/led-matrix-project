@@ -1,2 +1,7 @@
 config.ini
 
+# Python
+*.pyc
+*.pyo
+__pycache__/
+
