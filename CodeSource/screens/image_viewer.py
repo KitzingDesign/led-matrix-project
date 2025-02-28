@@ -10,7 +10,7 @@ class ImageViewer:
         font_path = os.path.join(script_dir, "../fonts/Font.otf")  # Adjust path
         img_folder = os.path.join(script_dir, "./img")  # Path to image folder
 
-        # Load font (fallback if not found)
+        # 
         try:
             self.font = ImageFont.truetype(font_path, 5)
         except IOError:
