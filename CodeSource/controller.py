@@ -87,7 +87,7 @@ def main():
     modules = {'spotify' : spotify_module.SpotifyModule(config), 'VGR': vgr_module.VGRModule(config) }
 
     # All screens 
-    app_list = [departure_viewer.PublicTransportAPI(config, modules)]
+    app_list = [main_screen.MainScreen(config, modules)]
 
     currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     parentdir = os.path.dirname(currentdir)
