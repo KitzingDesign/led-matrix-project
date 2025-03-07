@@ -20,7 +20,8 @@ from screens import main_screen, gif_viewer, image_viewer, spotify_player, depar
 from modules import spotify_module, vgr_module
 
 # Set up GPIO and the display options
-sw = 13  
+prev_button_pin = 13  # GPIO 13 (physical pin 33)
+next_button_pin = 19  # GPIO 19 (physical pin 35)
 
 def main():
     brightness = 100
@@ -33,7 +34,6 @@ def main():
     # This code imports the values from the config file
     config = configparser.ConfigParser()
     parsed_configs = config.read(config_file_path)
-    print(parsed_configs)
     if len(parsed_configs) == 0:
         print("no config file found")
         sys.exit()
@@ -46,9 +46,10 @@ def main():
     black_screen = Image.new("RGB", (canvas_width, canvas_height), (0,0,0))
 
     # Sets what the button will do
-    encButton = Button(sw, pull_up = True)
+    prevButton = Button(prev_button_pin, pull_up=True)  # Previous button
+    nextButton = Button(next_button_pin, pull_up=True)  # Next button
+
     inputStatusDict = {"value" : InputStatusEnum.NOTHING}
-    encButton.when_pressed = lambda button : encButtonFunc(button, inputStatusDict)
 
     # Turns the display on and off
     def toggle_display():
@@ -70,11 +71,13 @@ def main():
     current_app_idx = 0
     def switch_next_app():
         nonlocal current_app_idx
-        current_app_idx += 1
-    
+        current_app_idx = (current_app_idx + 1) % len(app_list)  # Cycle forward
+        print(f"Next button pressed. Switched to app: {app_list[current_app_idx].__class__.__name__}")
+
     def switch_prev_app():
         nonlocal current_app_idx
-        current_app_idx -= 1
+        current_app_idx = (current_app_idx - 1) % len(app_list)  # Cycle backward
+        print(f"Previous button pressed. Switched to app: {app_list[current_app_idx].__class__.__name__}")
 
     callbacks = {
                     'toggle_display' : toggle_display,
@@ -87,7 +90,11 @@ def main():
     modules = {'spotify' : spotify_module.SpotifyModule(config), 'VGR': vgr_module.VGRModule(config) }
 
     # All screens 
-    app_list = [main_screen.MainScreen(config, modules)]
+    app_list = [main_screen.MainScreen(config, modules), departure_viewer.PublicTransportAPI(config, modules),  spotify_player.SpotifyScreen(config, modules)]
+
+    # Map "next" and "prev" buttons to the corresponding functions
+    nextButton.when_pressed = lambda: callbacks['switch_next_app']()
+    prevButton.when_pressed = lambda: callbacks['switch_prev_app']()
 
     currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     parentdir = os.path.dirname(currentdir)
