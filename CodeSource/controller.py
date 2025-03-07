@@ -16,8 +16,8 @@ import configparser
 from PIL import Image
 import select
 
-from screens import main_screen, gif_viewer, image_viewer, spotify_player
-from modules import spotify_module
+from screens import main_screen, gif_viewer, image_viewer, spotify_player, departure_viewer
+from modules import spotify_module, vgr_module
 
 # Set up GPIO and the display options
 sw = 13  
@@ -84,10 +84,10 @@ def main():
                     'switch_prev_app' : switch_prev_app
                 }
     
-    modules = {'spotify' : spotify_module.SpotifyModule(config)}
+    modules = {'spotify' : spotify_module.SpotifyModule(config), 'VGR': vgr_module.VGRModule(config) }
 
     # All screens 
-    app_list = [spotify_player.SpotifyScreen(config, modules)]
+    app_list = [departure_viewer.PublicTransportAPI(config, modules)]
 
     currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     parentdir = os.path.dirname(currentdir)
